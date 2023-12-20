@@ -17,6 +17,7 @@ inductive Instruction
 | NOP
 | HALT
 
+-- Decodes the instruction at the instruction register.
 def decode_instruction (regs : Registers) (mem : Memory) : Instruction :=
   let encoded_instr := regs.instruction_register
   match encoded_instr with
@@ -30,6 +31,7 @@ def decode_instruction (regs : Registers) (mem : Memory) : Instruction :=
   | 7 => Instruction.JZ (mem (regs.program_counter + 1))
   | _ => Instruction.HALT
 
+-- Loads a value from memory at the address specified by the memory address register.
 def load_from_memory (regs : Registers) (mem : Memory) : Registers × Memory :=
   let addr := regs.memory_address_register
   let value := mem addr
@@ -39,12 +41,14 @@ def load_from_memory (regs : Registers) (mem : Memory) : Registers × Memory :=
      memory_address_register := regs.memory_address_register,
      memory_buffer_register := value }, mem)
 
+-- Stores a value in memory at the address specified by the memory address register.
 def store_to_memory (regs : Registers) (mem : Memory) : Registers × Memory :=
   let addr := regs.memory_address_register
   let value := regs.memory_buffer_register
   let new_mem := λ n => if n = addr then value else mem n
   (regs, new_mem)
 
+-- Executes a subinstruction for loading from memory.
 def execute_load_from_memory_subinstruction (addr : ℕ) (regs : Registers) (mem : Memory) : Registers × Memory :=
   let regs_with_mar :=
     { accumulator := regs.accumulator,
@@ -54,6 +58,7 @@ def execute_load_from_memory_subinstruction (addr : ℕ) (regs : Registers) (mem
       memory_buffer_register := regs.memory_buffer_register }
   load_from_memory regs_with_mar mem
 
+-- Executes an instruction based on the decoded instruction.
 def execute_instruction (instr : Instruction) (regs : Registers) (mem : Memory) : Registers × Memory :=
   match instr with
   | Instruction.LOAD addr =>
@@ -117,6 +122,7 @@ def execute_instruction (instr : Instruction) (regs : Registers) (mem : Memory) 
        memory_buffer_register := regs.memory_buffer_register }, mem)
   | Instruction.HALT => (regs, mem)
 
+-- Fetches the instruction from memory at the program counter.
 def fetch_instruction (regs : Registers) (mem : Memory) : Registers :=
   let pc := regs.program_counter
   let encoded_instr := mem pc
@@ -130,6 +136,7 @@ inductive TerminationStatus
 | NormalTermination
 | FuelExhausted
 
+-- Executes a single cycle of the processor.
 def execute_single_cycle (regs : Registers) (mem : Memory) : Registers × Memory :=
   let fetched_regs := fetch_instruction regs mem
   let instr := decode_instruction fetched_regs mem
@@ -147,6 +154,7 @@ def execute_single_cycle (regs : Registers) (mem : Memory) : Registers × Memory
   | Instruction.HALT => (updated_regs, mem)
   | _ => execute_instruction instr updated_regs mem
 
+-- Executes multiple cycles with a fuel limit.
 def execute_cycles (regs : Registers) (mem : Memory) (fuel : ℕ) : Registers × Memory × TerminationStatus :=
   match fuel with
   | 0 => (regs, mem, TerminationStatus.FuelExhausted)
@@ -156,6 +164,7 @@ def execute_cycles (regs : Registers) (mem : Memory) (fuel : ℕ) : Registers ×
     | 1 => (new_regs, new_mem, TerminationStatus.NormalTermination)
     | _ => execute_cycles new_regs new_mem fuel'
 
+-- Checks if the program halts within the given fuel limit.
 def program_halts (initial_regs : Registers) (mem : Memory) (fuel : ℕ) : Bool :=
   let (_, _, status) := execute_cycles initial_regs mem fuel
   match status with
@@ -168,6 +177,7 @@ namespace ExampleProgram
 
 open ToyISA
 
+-- Example initial registers.
 def example_regs : Registers :=
   { accumulator := 0,
     instruction_register := 0,
@@ -175,6 +185,7 @@ def example_regs : Registers :=
     memory_address_register := 0,
     memory_buffer_register := 0 }
 
+-- Example memory contents.
 def example_memory : Memory :=
   λ addr =>
     match addr with
@@ -187,8 +198,10 @@ def example_memory : Memory :=
     | 6 => 1
     | _ => 0
 
+-- Example fuel limit.
 def example_fuel_limit : ℕ := 10
 
+-- Check if the example program halts within the given fuel limit.
 def example_program_halts : Bool :=
   program_halts example_regs example_memory example_fuel_limit
 
