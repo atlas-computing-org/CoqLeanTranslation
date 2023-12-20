@@ -147,18 +147,20 @@ def execute_single_cycle (regs : Registers) (mem : Memory) : Registers × Memory
   | Instruction.HALT => (updated_regs, mem)
   | _ => execute_instruction instr updated_regs mem
 
-def execute_cycles (regs : Registers) (mem : Memory) : ℕ → Registers × Memory × TerminationStatus
-| 0 => (regs, mem, TerminationStatus.FuelExhausted)
-| (Nat.succ fuel) =>
-  let (new_regs, new_mem) := execute_single_cycle regs mem
-  match new_regs.instruction_register with
-  | 1 => (new_regs, new_mem, TerminationStatus.NormalTermination)
-  | _ => execute_cycles fuel new_regs new_mem
+def execute_cycles (regs : Registers) (mem : Memory) (fuel : ℕ) : Registers × Memory × TerminationStatus :=
+  match fuel with
+  | 0 => (regs, mem, TerminationStatus.FuelExhausted)
+  | succ fuel' =>
+    let (new_regs, new_mem) := execute_single_cycle regs mem
+    match new_regs.instruction_register with
+    | 1 => (new_regs, new_mem, TerminationStatus.NormalTermination)
+    | _ => execute_cycles new_regs new_mem fuel'
 
 def program_halts (initial_regs : Registers) (mem : Memory) (fuel : ℕ) : bool :=
-  match execute_cycles initial_regs mem fuel with
-  | (_, _, TerminationStatus.NormalTermination) => true
-  | _ => false
+  let (_, _, status) := execute_cycles initial_regs mem fuel
+  match status with
+  | TerminationStatus.NormalTermination => true
+  | TerminationStatus.FuelExhausted => false
 
 end ToyISA
 
