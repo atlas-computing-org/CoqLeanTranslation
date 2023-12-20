@@ -18,7 +18,7 @@ inductive Instruction
 | HALT
 
 def decode_instruction (regs : Registers) (mem : Memory) : Instruction :=
-  let encoded_instr := regs.instruction_register in
+  let encoded_instr := regs.instruction_register
   match encoded_instr with
   | 0 => Instruction.NOP
   | 1 => Instruction.HALT
@@ -31,8 +31,8 @@ def decode_instruction (regs : Registers) (mem : Memory) : Instruction :=
   | _ => Instruction.HALT
 
 def load_from_memory (regs : Registers) (mem : Memory) : Registers × Memory :=
-  let addr := regs.memory_address_register in
-  let value := mem addr in
+  let addr := regs.memory_address_register
+  let value := mem addr
   ({ accumulator := regs.accumulator,
      instruction_register := regs.instruction_register,
      program_counter := regs.program_counter,
@@ -40,9 +40,9 @@ def load_from_memory (regs : Registers) (mem : Memory) : Registers × Memory :=
      memory_buffer_register := value }, mem)
 
 def store_to_memory (regs : Registers) (mem : Memory) : Registers × Memory :=
-  let addr := regs.memory_address_register in
-  let value := regs.memory_buffer_register in
-  let new_mem := λ n, if n = addr then value else mem n in
+  let addr := regs.memory_address_register
+  let value := regs.memory_buffer_register
+  let new_mem := λ n, if n = addr then value else mem n
   (regs, new_mem)
 
 def execute_load_from_memory_subinstruction (addr : ℕ) (regs : Registers) (mem : Memory) : Registers × Memory :=
@@ -51,13 +51,13 @@ def execute_load_from_memory_subinstruction (addr : ℕ) (regs : Registers) (mem
       instruction_register := regs.instruction_register,
       program_counter := regs.program_counter,
       memory_address_register := addr,
-      memory_buffer_register := regs.memory_buffer_register } in
+      memory_buffer_register := regs.memory_buffer_register }
   load_from_memory regs_with_mar mem
 
 def execute_instruction (instr : Instruction) (regs : Registers) (mem : Memory) : Registers × Memory :=
   match instr with
   | Instruction.LOAD addr =>
-    let (regs_loaded, mem_loaded) := execute_load_from_memory_subinstruction addr regs mem in
+    let (regs_loaded, mem_loaded) := execute_load_from_memory_subinstruction addr regs mem
     ({ accumulator := regs_loaded.memory_buffer_register,
        instruction_register := regs_loaded.instruction_register,
        program_counter := regs_loaded.program_counter + 1,
@@ -69,22 +69,22 @@ def execute_instruction (instr : Instruction) (regs : Registers) (mem : Memory) 
         instruction_register := regs.instruction_register,
         program_counter := regs.program_counter,
         memory_address_register := addr,
-        memory_buffer_register := regs.accumulator } in
-    let (regs_stored, mem_stored) := store_to_memory regs_with_mar_mbr mem in
+        memory_buffer_register := regs.accumulator }
+    let (regs_stored, mem_stored) := store_to_memory regs_with_mar_mbr mem
     ({ accumulator := regs_stored.accumulator,
        instruction_register := regs_stored.instruction_register,
        program_counter := regs_stored.program_counter + 1,
        memory_address_register := regs_stored.memory_address_register,
        memory_buffer_register := regs_stored.memory_buffer_register }, mem_stored)
   | Instruction.ADD addr =>
-    let (regs_loaded, mem_loaded) := execute_load_from_memory_subinstruction addr regs mem in
+    let (regs_loaded, mem_loaded) := execute_load_from_memory_subinstruction addr regs mem
     ({ accumulator := regs_loaded.accumulator + regs_loaded.memory_buffer_register,
        instruction_register := regs_loaded.instruction_register,
        program_counter := regs_loaded.program_counter + 1,
        memory_address_register := regs_loaded.memory_address_register,
        memory_buffer_register := regs_loaded.memory_buffer_register }, mem_loaded)
   | Instruction.SUB addr =>
-    let (regs_loaded, mem_loaded) := execute_load_from_memory_subinstruction addr regs mem in
+    let (regs_loaded, mem_loaded) := execute_load_from_memory_subinstruction addr regs mem
     ({ accumulator := regs_loaded.accumulator - regs_loaded.memory_buffer_register,
        instruction_register := regs_loaded.instruction_register,
        program_counter := regs_loaded.program_counter + 1,
@@ -119,8 +119,8 @@ def execute_instruction (instr : Instruction) (regs : Registers) (mem : Memory) 
   end
 
 def fetch_instruction (regs : Registers) (mem : Memory) : Registers :=
-  let pc := regs.program_counter in
-  let encoded_instr := mem pc in
+  let pc := regs.program_counter
+  let encoded_instr := mem pc
   { accumulator := regs.accumulator,
     instruction_register := encoded_instr,
     program_counter := regs.program_counter,
@@ -132,19 +132,19 @@ inductive TerminationStatus
 | FuelExhausted
 
 def execute_single_cycle (regs : Registers) (mem : Memory) : Registers × Memory :=
-  let fetched_regs := fetch_instruction regs mem in
-  let instr := decode_instruction fetched_regs mem in
+  let fetched_regs := fetch_instruction regs mem
+  let instr := decode_instruction fetched_regs mem
   let pc_increment :=
     match instr with
     | Instruction.LOAD _ | Instruction.STORE _ | Instruction.ADD _ | Instruction.SUB _ | Instruction.JMP _ | Instruction.JZ _ => 2
     | Instruction.NOP | Instruction.HALT => 1
-    end in
+    end
   let updated_regs :=
     { accumulator := fetched_regs.accumulator,
       instruction_register := fetched_regs.instruction_register,
       program_counter := fetched_regs.program_counter + pc_increment,
       memory_address_register := fetched_regs.memory_address_register,
-      memory_buffer_register := fetched_regs.memory_buffer_register } in
+      memory_buffer_register := fetched_regs.memory_buffer_register }
   match instr with
   | Instruction.HALT => (updated_regs, mem)
   | _ => execute_instruction instr updated_regs mem
@@ -153,7 +153,7 @@ def execute_cycles (regs : Registers) (mem : Memory) (fuel : ℕ) : Registers ×
   match fuel with
   | 0 => (regs, mem, TerminationStatus.FuelExhausted)
   | succ fuel' :=
-    let (new_regs, new_mem) := execute_single_cycle regs mem in
+    let (new_regs, new_mem) := execute_single_cycle regs mem
     match new_regs.instruction_register with
     | 1 => (new_regs, new_mem, TerminationStatus.NormalTermination)
     | _ => execute_cycles new_regs new_mem fuel'
@@ -161,7 +161,7 @@ def execute_cycles (regs : Registers) (mem : Memory) (fuel : ℕ) : Registers ×
   end
 
 def program_halts (initial_regs : Registers) (mem : Memory) (fuel : ℕ) : bool :=
-  let (_, _, status) := execute_cycles initial_regs mem fuel in
+  let (_, _, status) := execute_cycles initial_regs mem fuel
   match status with
   | TerminationStatus.NormalTermination => true
   | TerminationStatus.FuelExhausted => false
