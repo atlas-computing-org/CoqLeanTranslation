@@ -150,7 +150,7 @@ def execute_single_cycle (regs : Registers) (mem : Memory) : Registers × Memory
 def execute_cycles (regs : Registers) (mem : Memory) (fuel : ℕ) : Registers × Memory × TerminationStatus :=
   match fuel with
   | 0 => (regs, mem, TerminationStatus.FuelExhausted)
-  | succ fuel' :=
+  | succ fuel' =>
     let (new_regs, new_mem) := execute_single_cycle regs mem
     match new_regs.instruction_register with
     | 1 => (new_regs, new_mem, TerminationStatus.NormalTermination)
