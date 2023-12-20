@@ -42,7 +42,7 @@ def load_from_memory (regs : Registers) (mem : Memory) : Registers × Memory :=
 def store_to_memory (regs : Registers) (mem : Memory) : Registers × Memory :=
   let addr := regs.memory_address_register
   let value := regs.memory_buffer_register
-  let new_mem := λ n, if n = addr then value else mem n
+  let new_mem := λ n => if n = addr then value else mem n
   (regs, new_mem)
 
 def execute_load_from_memory_subinstruction (addr : ℕ) (regs : Registers) (mem : Memory) : Registers × Memory :=
@@ -176,7 +176,7 @@ def example_regs : Registers :=
     memory_buffer_register := 0 }
 
 def example_memory : Memory :=
-  λ addr,
+  λ addr =>
     match addr with
     | 0 => 0
     | 1 => 2
