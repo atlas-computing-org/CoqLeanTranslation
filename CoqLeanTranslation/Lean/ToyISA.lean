@@ -1,6 +1,6 @@
-namespace ToyISA
+import Mathlib.Tactic
 
-open nat
+namespace ToyISA
 
 structure Registers :=
   (accumulator instruction_register program_counter memory_address_register memory_buffer_register : ℕ)
