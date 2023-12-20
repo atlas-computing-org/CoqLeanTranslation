@@ -116,7 +116,6 @@ def execute_instruction (instr : Instruction) (regs : Registers) (mem : Memory) 
        memory_address_register := regs.memory_address_register,
        memory_buffer_register := regs.memory_buffer_register }, mem)
   | Instruction.HALT => (regs, mem)
-  end
 
 def fetch_instruction (regs : Registers) (mem : Memory) : Registers :=
   let pc := regs.program_counter
@@ -138,7 +137,6 @@ def execute_single_cycle (regs : Registers) (mem : Memory) : Registers × Memory
     match instr with
     | Instruction.LOAD _ | Instruction.STORE _ | Instruction.ADD _ | Instruction.SUB _ | Instruction.JMP _ | Instruction.JZ _ => 2
     | Instruction.NOP | Instruction.HALT => 1
-    end
   let updated_regs :=
     { accumulator := fetched_regs.accumulator,
       instruction_register := fetched_regs.instruction_register,
@@ -157,15 +155,12 @@ def execute_cycles (regs : Registers) (mem : Memory) (fuel : ℕ) : Registers ×
     match new_regs.instruction_register with
     | 1 => (new_regs, new_mem, TerminationStatus.NormalTermination)
     | _ => execute_cycles new_regs new_mem fuel'
-    end
-  end
 
 def program_halts (initial_regs : Registers) (mem : Memory) (fuel : ℕ) : bool :=
   let (_, _, status) := execute_cycles initial_regs mem fuel
   match status with
   | TerminationStatus.NormalTermination => true
   | TerminationStatus.FuelExhausted => false
-  end
 
 end ToyISA
 
