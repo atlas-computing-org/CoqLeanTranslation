@@ -156,7 +156,7 @@ def execute_cycles (regs : Registers) (mem : Memory) (fuel : ℕ) : Registers ×
     | 1 => (new_regs, new_mem, TerminationStatus.NormalTermination)
     | _ => execute_cycles new_regs new_mem fuel'
 
-def program_halts (initial_regs : Registers) (mem : Memory) (fuel : ℕ) : bool :=
+def program_halts (initial_regs : Registers) (mem : Memory) (fuel : ℕ) : Bool :=
   let (_, _, status) := execute_cycles initial_regs mem fuel
   match status with
   | TerminationStatus.NormalTermination => true
@@ -189,7 +189,7 @@ def example_memory : Memory :=
 
 def example_fuel_limit : ℕ := 10
 
-def example_program_halts : bool :=
+def example_program_halts : Bool :=
   program_halts example_regs example_memory example_fuel_limit
 
 end ExampleProgram
