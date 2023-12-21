@@ -1,4 +1,5 @@
 -- Lean equivalent of Coq's `nat`
+@[reducible]
 def Register := Nat
 
 -- Record in Lean for Toy_ISA_Registers
