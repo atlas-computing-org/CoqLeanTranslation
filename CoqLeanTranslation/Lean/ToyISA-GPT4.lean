@@ -111,7 +111,7 @@ inductive TerminationStatus
   | FuelExhausted
 
 -- Recursive function to execute cycles
-partial def execute_cycles (regs : Toy_ISA_Registers) (mem : Memory) (fuel : Nat) : Toy_ISA_Registers × Memory × TerminationStatus :=
+def execute_cycles (regs : Toy_ISA_Registers) (mem : Memory) (fuel : Nat) : Toy_ISA_Registers × Memory × TerminationStatus :=
   match fuel with
   | 0 => (regs, mem, TerminationStatus.FuelExhausted)
   | fuel' + 1 =>
