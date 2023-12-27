@@ -1,6 +1,6 @@
 Definition Register := nat.
 
-Record Toy_ISA_Registers := {
+Record Registers := {
   accumulator : Register;
   instruction_register : Register;
   program_counter : Register;
@@ -21,7 +21,7 @@ Inductive Instruction :=
   | HALT.
 
 (* Function to decode an instruction from the instruction register *)
-Definition decode_instruction (regs: Toy_ISA_Registers) (mem: Memory) : Instruction :=
+Definition decode_instruction (regs: Registers) (mem: Memory) : Instruction :=
   let encoded_instr := regs.(instruction_register) in
   match encoded_instr with
   | 0 => NOP
@@ -36,7 +36,7 @@ Definition decode_instruction (regs: Toy_ISA_Registers) (mem: Memory) : Instruct
   end.
 
 (* Function to load a value from memory into the MBR *)
-Definition load_from_memory (regs: Toy_ISA_Registers) (mem: Memory) : Toy_ISA_Registers * Memory :=
+Definition load_from_memory (regs: Registers) (mem: Memory) : Registers * Memory :=
   let addr := regs.(memory_address_register) in
   let value := mem addr in
   ({| accumulator := regs.(accumulator);
@@ -46,14 +46,14 @@ Definition load_from_memory (regs: Toy_ISA_Registers) (mem: Memory) : Toy_ISA_Re
       memory_buffer_register := value |}, mem).
 
 (* Function to store a value from the MBR into memory *)
-Definition store_to_memory (regs: Toy_ISA_Registers) (mem: Memory) : Toy_ISA_Registers * Memory :=
+Definition store_to_memory (regs: Registers) (mem: Memory) : Registers * Memory :=
   let addr := regs.(memory_address_register) in
   let value := regs.(memory_buffer_register) in
   let new_mem := fun n => if Nat.eqb n addr then value else mem n in
   (regs, new_mem).
 
 (* Function to execute the common subinstruction of loading from memory *)
-Definition execute_load_from_memory_subinstruction (addr: nat) (regs: Toy_ISA_Registers) (mem: Memory) : Toy_ISA_Registers * Memory :=
+Definition execute_load_from_memory_subinstruction (addr: nat) (regs: Registers) (mem: Memory) : Registers * Memory :=
   let regs_with_mar := {| accumulator := regs.(accumulator);
                           instruction_register := regs.(instruction_register);
                           program_counter := regs.(program_counter);
@@ -62,7 +62,7 @@ Definition execute_load_from_memory_subinstruction (addr: nat) (regs: Toy_ISA_Re
   load_from_memory regs_with_mar mem.
 
 (* Function to execute a single instruction *)
-Definition execute_instruction (instr: Instruction) (regs: Toy_ISA_Registers) (mem: Memory) : Toy_ISA_Registers * Memory :=
+Definition execute_instruction (instr: Instruction) (regs: Registers) (mem: Memory) : Registers * Memory :=
   match instr with
   | LOAD addr => 
       let (regs_loaded, mem_loaded) := execute_load_from_memory_subinstruction addr regs mem in
@@ -127,7 +127,7 @@ Definition execute_instruction (instr: Instruction) (regs: Toy_ISA_Registers) (m
       (regs, mem)
   end.
 
-Definition fetch_instruction (regs: Toy_ISA_Registers) (mem: Memory) : Toy_ISA_Registers :=
+Definition fetch_instruction (regs: Registers) (mem: Memory) : Registers :=
   let pc := regs.(program_counter) in
   let encoded_instr := mem pc in
   {| accumulator := regs.(accumulator);
@@ -137,7 +137,7 @@ Definition fetch_instruction (regs: Toy_ISA_Registers) (mem: Memory) : Toy_ISA_R
      memory_buffer_register := regs.(memory_buffer_register) |}.
 
 (* Function to execute a single cycle *)
-Definition execute_single_cycle (regs: Toy_ISA_Registers) (mem: Memory) : Toy_ISA_Registers * Memory :=
+Definition execute_single_cycle (regs: Registers) (mem: Memory) : Registers * Memory :=
     let fetched_regs := fetch_instruction regs mem in
     let instr := decode_instruction fetched_regs mem in
     let pc_increment := match instr with
@@ -159,8 +159,8 @@ Inductive TerminationStatus :=
   | FuelExhausted.
 
 (* Recursive function to execute cycles until HALT or fuel runs out *)
-Fixpoint execute_cycles (regs: Toy_ISA_Registers) (mem: Memory) (fuel: nat) 
-  : (Toy_ISA_Registers * Memory * TerminationStatus) :=
+Fixpoint execute_cycles (regs: Registers) (mem: Memory) (fuel: nat)
+  : (Registers * Memory * TerminationStatus) :=
   match fuel with
   | 0 => (regs, mem, FuelExhausted)  (* Termination due to fuel exhaustion *)
   | S fuel' =>
@@ -172,7 +172,7 @@ Fixpoint execute_cycles (regs: Toy_ISA_Registers) (mem: Memory) (fuel: nat)
   end.
 
 (* Function to check if a program halts within a specified fuel limit *)
-Definition program_halts (initial_regs: Toy_ISA_Registers) (mem: Memory) (fuel: nat) : bool :=
+Definition program_halts (initial_regs: Registers) (mem: Memory) (fuel: nat) : bool :=
   let '(_, _, status) := execute_cycles initial_regs mem fuel in
   match status with
   | NormalTermination => true
@@ -183,7 +183,7 @@ Definition program_halts (initial_regs: Toy_ISA_Registers) (mem: Memory) (fuel: 
 (*** EXAMPLE PROGRAM 1: Dummy Program ***)
 
 (* Initial state of the registers in the example program *)
-Definition example_1_regs : Toy_ISA_Registers :=
+Definition example_1_regs : Registers :=
   {| accumulator := 0;
      instruction_register := 0;
      program_counter := 0;
