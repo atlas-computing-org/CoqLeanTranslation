@@ -78,9 +78,9 @@ def execute_instruction (instr : Instruction) (regs : Toy_ISA_Registers) (mem : 
       if regs.accumulator = 0 then
         ({regs with program_counter := addr}, mem)
       else
-        ({regs with program_counter := regs.program_counter}, mem)
+        (regs, mem)
   | Instruction.NOP =>
-      ({regs with program_counter := regs.program_counter}, mem)
+      (regs, mem)
   | Instruction.HALT =>
       (regs, mem)
 
