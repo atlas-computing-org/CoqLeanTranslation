@@ -9,7 +9,7 @@ Record Registers := {
 }.
 
 Definition Memory := nat -> nat.  (* A function representing memory as an array of natural numbers *)
-  
+
 Inductive Instruction :=
   | LOAD (addr: nat)
   | STORE (addr: nat)
@@ -64,7 +64,7 @@ Definition execute_load_from_memory_subinstruction (addr: nat) (regs: Registers)
 (* Function to execute a single instruction *)
 Definition execute_instruction (instr: Instruction) (regs: Registers) (mem: Memory) : Registers * Memory :=
   match instr with
-  | LOAD addr => 
+  | LOAD addr =>
       let (regs_loaded, mem_loaded) := execute_load_from_memory_subinstruction addr regs mem in
       ({| accumulator := regs_loaded.(memory_buffer_register);
           instruction_register := regs_loaded.(instruction_register);
