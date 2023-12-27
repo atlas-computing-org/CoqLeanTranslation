@@ -1,9 +1,11 @@
+namespace ToyISA
+
 -- Lean equivalent of Coq's `nat`
 @[reducible]
 def Register := Nat
 
--- Record in Lean for Toy_ISA_Registers
-structure Toy_ISA_Registers :=
+-- Record in Lean for Registers
+structure Registers :=
   (accumulator : Register)
   (instruction_register : Register)
   (program_counter : Register)
@@ -25,7 +27,7 @@ inductive Instruction
   | HALT
 
 -- Function to decode an instruction from the instruction register
-def decode_instruction (regs : Toy_ISA_Registers) (mem : Memory) : Instruction :=
+def decode_instruction (regs : Registers) (mem : Memory) : Instruction :=
   let encoded_instr := regs.instruction_register
   match encoded_instr with
   | 0 => Instruction.NOP
@@ -39,25 +41,25 @@ def decode_instruction (regs : Toy_ISA_Registers) (mem : Memory) : Instruction :
   | _ => Instruction.HALT -- Default case for undefined instructions
 
 -- Function to load a value from memory into the MBR
-def load_from_memory (regs : Toy_ISA_Registers) (mem : Memory) : Toy_ISA_Registers × Memory :=
+def load_from_memory (regs : Registers) (mem : Memory) : Registers × Memory :=
   let addr := regs.memory_address_register
   let value := mem addr
   ({regs with memory_buffer_register := value}, mem)
 
 -- Function to store a value from the MBR into memory
-def store_to_memory (regs : Toy_ISA_Registers) (mem : Memory) : Toy_ISA_Registers × Memory :=
+def store_to_memory (regs : Registers) (mem : Memory) : Registers × Memory :=
   let addr := regs.memory_address_register
   let value := regs.memory_buffer_register
   let new_mem := fun n => if n = addr then value else mem n
   (regs, new_mem)
 
 -- Function to execute the common subinstruction of loading from memory
-def execute_load_from_memory_subinstruction (addr : Nat) (regs : Toy_ISA_Registers) (mem : Memory) : Toy_ISA_Registers × Memory :=
+def execute_load_from_memory_subinstruction (addr : Nat) (regs : Registers) (mem : Memory) : Registers × Memory :=
   let regs_with_mar := {regs with memory_address_register := addr}
   load_from_memory regs_with_mar mem
 
 -- Function to execute a single instruction
-def execute_instruction (instr : Instruction) (regs : Toy_ISA_Registers) (mem : Memory) : Toy_ISA_Registers × Memory :=
+def execute_instruction (instr : Instruction) (regs : Registers) (mem : Memory) : Registers × Memory :=
   match instr with
   | Instruction.LOAD addr =>
       let (regs_loaded, mem_loaded) := execute_load_from_memory_subinstruction addr regs mem
@@ -85,13 +87,13 @@ def execute_instruction (instr : Instruction) (regs : Toy_ISA_Registers) (mem : 
       (regs, mem)
 
 -- Function to fetch an instruction
-def fetch_instruction (regs : Toy_ISA_Registers) (mem : Memory) : Toy_ISA_Registers :=
+def fetch_instruction (regs : Registers) (mem : Memory) : Registers :=
   let pc := regs.program_counter
   let encoded_instr := mem pc
   {regs with instruction_register := encoded_instr}
 
 -- Function to execute a single cycle
-def execute_single_cycle (regs : Toy_ISA_Registers) (mem : Memory) : Toy_ISA_Registers × Memory :=
+def execute_single_cycle (regs : Registers) (mem : Memory) : Registers × Memory :=
   let fetched_regs := fetch_instruction regs mem
   let instr := decode_instruction fetched_regs mem
   let pc_increment := match instr with
@@ -108,7 +110,7 @@ inductive TerminationStatus
   | FuelExhausted
 
 -- Recursive function to execute cycles
-def execute_cycles (regs : Toy_ISA_Registers) (mem : Memory) (fuel : Nat) : Toy_ISA_Registers × Memory × TerminationStatus :=
+def execute_cycles (regs : Registers) (mem : Memory) (fuel : Nat) : Registers × Memory × TerminationStatus :=
   match fuel with
   | 0 => (regs, mem, TerminationStatus.FuelExhausted)
   | fuel' + 1 =>
@@ -118,16 +120,22 @@ def execute_cycles (regs : Toy_ISA_Registers) (mem : Memory) (fuel : Nat) : Toy_
       | _ => execute_cycles new_regs new_mem fuel'
 
 -- Function to check if a program halts within a specified fuel limit
-def program_halts (initial_regs : Toy_ISA_Registers) (mem : Memory) (fuel : Nat) : Bool :=
+def program_halts (initial_regs : Registers) (mem : Memory) (fuel : Nat) : Bool :=
   let (_, _, status) := execute_cycles initial_regs mem fuel
   match status with
   | TerminationStatus.NormalTermination => true
   | TerminationStatus.FuelExhausted => false
 
+end ToyISA
+
 
 -- EXAMPLE PROGRAM 1: Dummy Program
 
-def example_1_regs : Toy_ISA_Registers :=
+namespace ExampleProgram1
+
+open ToyISA
+
+def example_1_regs : Registers :=
   {accumulator := 0, instruction_register := 0, program_counter := 0, memory_address_register := 0, memory_buffer_register := 0}
 
 def example_1_memory : Memory :=
@@ -146,3 +154,5 @@ def example_1_fuel_limit := 10
 
 def example_1_program_halts : Bool :=
   program_halts example_1_regs example_1_memory example_1_fuel_limit
+
+end ExampleProgram1
