@@ -83,7 +83,6 @@ def execute_instruction (instr : Instruction) (regs : Toy_ISA_Registers) (mem : 
       ({regs with program_counter := regs.program_counter}, mem)
   | Instruction.HALT =>
       (regs, mem)
-  end
 
 -- Function to fetch an instruction
 def fetch_instruction (regs : Toy_ISA_Registers) (mem : Memory) : Toy_ISA_Registers :=
