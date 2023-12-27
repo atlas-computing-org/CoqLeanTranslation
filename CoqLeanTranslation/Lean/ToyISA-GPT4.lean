@@ -127,11 +127,13 @@ def program_halts (initial_regs : Toy_ISA_Registers) (mem : Memory) (fuel : Nat)
   | TerminationStatus.NormalTermination => true
   | TerminationStatus.FuelExhausted => false
 
--- Example Program
-def example_regs : Toy_ISA_Registers :=
+
+-- EXAMPLE PROGRAM 1: Dummy Program
+
+def example_1_regs : Toy_ISA_Registers :=
   {accumulator := 0, instruction_register := 0, program_counter := 0, memory_address_register := 0, memory_buffer_register := 0}
 
-def example_memory : Memory :=
+def example_1_memory : Memory :=
   fun addr =>
     match addr with
     | 0 => 0
@@ -143,7 +145,7 @@ def example_memory : Memory :=
     | 6 => 1
     | _ => 0
 
-def example_fuel_limit := 10
+def example_1_fuel_limit := 10
 
-def example_program_halts : Bool :=
-  program_halts example_regs example_memory example_fuel_limit
+def example_1_program_halts : Bool :=
+  program_halts example_1_regs example_1_memory example_1_fuel_limit

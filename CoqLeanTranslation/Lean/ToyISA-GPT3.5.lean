@@ -173,12 +173,15 @@ def program_halts (initial_regs : Registers) (mem : Memory) (fuel : ℕ) : Bool 
 
 end ToyISA
 
-namespace ExampleProgram
+
+-- EXAMPLE PROGRAM 1: Dummy Program
+
+namespace ExampleProgram1
 
 open ToyISA
 
 -- Example initial registers.
-def example_regs : Registers :=
+def example_1_regs : Registers :=
   { accumulator := 0,
     instruction_register := 0,
     program_counter := 0,
@@ -186,7 +189,7 @@ def example_regs : Registers :=
     memory_buffer_register := 0 }
 
 -- Example memory contents.
-def example_memory : Memory :=
+def example_1_memory : Memory :=
   λ addr =>
     match addr with
     | 0 => 0
@@ -199,10 +202,10 @@ def example_memory : Memory :=
     | _ => 0
 
 -- Example fuel limit.
-def example_fuel_limit : ℕ := 10
+def example_1_fuel_limit : ℕ := 10
 
 -- Check if the example program halts within the given fuel limit.
-def example_program_halts : Bool :=
-  program_halts example_regs example_memory example_fuel_limit
+def example_1_program_halts : Bool :=
+  program_halts example_1_regs example_1_memory example_1_fuel_limit
 
-end ExampleProgram
+end ExampleProgram1
