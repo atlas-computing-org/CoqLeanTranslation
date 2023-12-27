@@ -68,7 +68,7 @@ Definition execute_instruction (instr: Instruction) (regs: Toy_ISA_Registers) (m
       let (regs_loaded, mem_loaded) := execute_load_from_memory_subinstruction addr regs mem in
       ({| accumulator := regs_loaded.(memory_buffer_register);
           instruction_register := regs_loaded.(instruction_register);
-          program_counter := regs_loaded.(program_counter) + 1;
+          program_counter := regs_loaded.(program_counter);
           memory_address_register := regs_loaded.(memory_address_register);
           memory_buffer_register := regs_loaded.(memory_buffer_register) |}, mem_loaded)
   | STORE addr =>
@@ -81,21 +81,21 @@ Definition execute_instruction (instr: Instruction) (regs: Toy_ISA_Registers) (m
       let (regs_stored, mem_stored) := store_to_memory regs_with_mar_mbr mem in
       ({| accumulator := regs_stored.(accumulator);
           instruction_register := regs_stored.(instruction_register);
-          program_counter := regs_stored.(program_counter) + 1;
+          program_counter := regs_stored.(program_counter);
           memory_address_register := regs_stored.(memory_address_register);
           memory_buffer_register := regs_stored.(memory_buffer_register) |}, mem_stored)
   | ADD addr =>
       let (regs_loaded, mem_loaded) := execute_load_from_memory_subinstruction addr regs mem in
       ({| accumulator := regs_loaded.(accumulator) + regs_loaded.(memory_buffer_register);
           instruction_register := regs_loaded.(instruction_register);
-          program_counter := regs_loaded.(program_counter) + 1;
+          program_counter := regs_loaded.(program_counter);
           memory_address_register := regs_loaded.(memory_address_register);
           memory_buffer_register := regs_loaded.(memory_buffer_register) |}, mem_loaded)
   | SUB addr =>
       let (regs_loaded, mem_loaded) := execute_load_from_memory_subinstruction addr regs mem in
       ({| accumulator := regs_loaded.(accumulator) - regs_loaded.(memory_buffer_register);
           instruction_register := regs_loaded.(instruction_register);
-          program_counter := regs_loaded.(program_counter) + 1;
+          program_counter := regs_loaded.(program_counter);
           memory_address_register := regs_loaded.(memory_address_register);
           memory_buffer_register := regs_loaded.(memory_buffer_register) |}, mem_loaded)
   | JMP addr =>
@@ -114,13 +114,13 @@ Definition execute_instruction (instr: Instruction) (regs: Toy_ISA_Registers) (m
       else
         ({| accumulator := regs.(accumulator);
             instruction_register := regs.(instruction_register);
-            program_counter := regs.(program_counter) + 1;
+            program_counter := regs.(program_counter);
             memory_address_register := regs.(memory_address_register);
             memory_buffer_register := regs.(memory_buffer_register) |}, mem)
   | NOP =>
       ({| accumulator := regs.(accumulator);
           instruction_register := regs.(instruction_register);
-          program_counter := regs.(program_counter) + 1;
+          program_counter := regs.(program_counter);
           memory_address_register := regs.(memory_address_register);
           memory_buffer_register := regs.(memory_buffer_register) |}, mem)
   | HALT =>
@@ -132,7 +132,7 @@ Definition fetch_instruction (regs: Toy_ISA_Registers) (mem: Memory) : Toy_ISA_R
   let encoded_instr := mem pc in
   {| accumulator := regs.(accumulator);
      instruction_register := encoded_instr;
-     program_counter := regs.(program_counter );
+     program_counter := regs.(program_counter);
      memory_address_register := regs.(memory_address_register);
      memory_buffer_register := regs.(memory_buffer_register) |}.
 
