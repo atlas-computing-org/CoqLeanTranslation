@@ -180,13 +180,33 @@ Definition program_halts (initial_regs: Toy_ISA_Registers) (mem: Memory) (fuel: 
   end.
 
 
-(* Example of initializing a Toy_ISA_Registers record *)
-Definition init_registers : Toy_ISA_Registers :=
+(*** EXAMPLE PROGRAM 1: Dummy Program ***)
+
+(* Initial state of the registers in the example program *)
+Definition example_1_regs : Toy_ISA_Registers :=
   {| accumulator := 0;
      instruction_register := 0;
      program_counter := 0;
      memory_address_register := 0;
      memory_buffer_register := 0 |}.
 
-(* Example of initializing memory *)
-Definition init_memory : Memory := fun _ => 0.  (* All memory locations initialized to 0 *)
+(* Initial memory in the example program *)
+Definition example_1_memory : Memory :=
+  fun addr =>
+    match addr with
+    | 0 => 0  (* NOP *)
+    | 1 => 2  (* LOAD *)
+    | 2 => 5  (* Address 5 *)
+    | 3 => 6  (* JMP *)
+    | 4 => 6  (* Address 6 *)
+    | 5 => 42 (* Value to be loaded *)
+    | 6 => 1  (* HALT *)
+    | _ => 0  (* Default value for other addresses *)
+    end.
+
+(* Fuel limit for analyzing the example program *)
+Definition example_1_fuel_limit := 10.
+
+(* Check if the example program halts *)
+Definition example_1_program_halts : bool :=
+  program_halts example_1_regs example_1_memory example_1_fuel_limit.
