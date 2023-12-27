@@ -171,6 +171,14 @@ Fixpoint execute_cycles (regs: Toy_ISA_Registers) (mem: Memory) (fuel: nat)
       end
   end.
 
+(* Function to check if a program halts within a specified fuel limit *)
+Definition program_halts (initial_regs: Toy_ISA_Registers) (mem: Memory) (fuel: nat) : bool :=
+  let '(_, _, status) := execute_cycles initial_regs mem fuel in
+  match status with
+  | NormalTermination => true
+  | FuelExhausted => false
+  end.
+
 
 (* Example of initializing a Toy_ISA_Registers record *)
 Definition init_registers : Toy_ISA_Registers :=
