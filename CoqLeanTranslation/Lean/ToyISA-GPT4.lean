@@ -61,31 +61,29 @@ def execute_instruction (instr : Instruction) (regs : Toy_ISA_Registers) (mem : 
   match instr with
   | Instruction.LOAD addr =>
       let (regs_loaded, mem_loaded) := execute_load_from_memory_subinstruction addr regs mem
-      ({regs_loaded with accumulator := regs_loaded.memory_buffer_register,
-                         program_counter := regs_loaded.program_counter + 1}, mem_loaded)
+      ({regs_loaded with accumulator := regs_loaded.memory_buffer_register}, mem_loaded)
   | Instruction.STORE addr =>
       let regs_with_mar_mbr := {regs with memory_address_register := addr, memory_buffer_register := regs.accumulator}
       let (regs_stored, mem_stored) := store_to_memory regs_with_mar_mbr mem
-      ({regs_stored with program_counter := regs_stored.program_counter + 1}, mem_stored)
+      (regs_stored, mem_stored)
   | Instruction.ADD addr =>
       let (regs_loaded, mem_loaded) := execute_load_from_memory_subinstruction addr regs mem
-      ({regs_loaded with accumulator := regs_loaded.accumulator + regs_loaded.memory_buffer_register,
-                         program_counter := regs_loaded.program_counter + 1}, mem_loaded)
+      ({regs_loaded with accumulator := regs_loaded.accumulator + regs_loaded.memory_buffer_register}, mem_loaded)
   | Instruction.SUB addr =>
       let (regs_loaded, mem_loaded) := execute_load_from_memory_subinstruction addr regs mem
-      ({regs_loaded with accumulator := regs_loaded.accumulator - regs_loaded.memory_buffer_register,
-                         program_counter := regs_loaded.program_counter + 1}, mem_loaded)
+      ({regs_loaded with accumulator := regs_loaded.accumulator - regs_loaded.memory_buffer_register}, mem_loaded)
   | Instruction.JMP addr =>
       ({regs with program_counter := addr}, mem)
   | Instruction.JZ addr =>
       if regs.accumulator = 0 then
         ({regs with program_counter := addr}, mem)
       else
-        ({regs with program_counter := regs.program_counter + 1}, mem)
+        ({regs with program_counter := regs.program_counter}, mem)
   | Instruction.NOP =>
-      ({regs with program_counter := regs.program_counter + 1}, mem)
+      ({regs with program_counter := regs.program_counter}, mem)
   | Instruction.HALT =>
       (regs, mem)
+  end
 
 -- Function to fetch an instruction
 def fetch_instruction (regs : Toy_ISA_Registers) (mem : Memory) : Toy_ISA_Registers :=
