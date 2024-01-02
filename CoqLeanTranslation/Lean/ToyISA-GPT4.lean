@@ -193,24 +193,20 @@ def example_2_regs : Registers := {
 }
 
 def example_2_program_memory : Memory :=
-  let START_OF_LOOP := 10 in
-  let PTR_NEXT_INPUT_VALUE := 19 in
-  let LAST_PROGRAM_INSTRUCTION := 38 in
-  let program_data_start := LAST_PROGRAM_INSTRUCTION + 1 in
-
-  let const_1 :=                    program_data_start + 0 in
-  let num_remaining_input_values := program_data_start + 1 in
-  let next_input_value_addr :=      program_data_start + 2 in
-  let current_sum :=                program_data_start + 3 in
-  let program_input_start :=        program_data_start + 4 in
-
-  let dummy_value := 0 in
-  let init_num_remaining_input_values := dummy_value in
-  let init_next_input_value_addr := program_input_start in
-  let init_current_sum_value := 0 in
-
-  fun addr =>
-    match addr with
+  let START_OF_LOOP := 10,
+      PTR_NEXT_INPUT_VALUE := 19,
+      LAST_PROGRAM_INSTRUCTION := 38,
+      program_data_start := LAST_PROGRAM_INSTRUCTION + 1,
+      const_1 := program_data_start,
+      num_remaining_input_values := program_data_start + 1,
+      next_input_value_addr := program_data_start + 2,
+      current_sum := program_data_start + 3,
+      program_input_start := program_data_start + 4,
+      dummy_value := 0,
+      init_num_remaining_input_values := dummy_value,
+      init_next_input_value_addr := program_input_start,
+      init_current_sum_value := 0
+  in λ addr, match addr with
     | 0 => 2    -- LOAD first input value
     | 1 => program_input_start
     | 2 => 3    -- STORE num remaining input values
@@ -285,7 +281,6 @@ def example_2_program_memory : Memory :=
     -- 43: program_input_start
 
     | _ => 0  -- Default value for other addresses
-    end
 
 def example_2_input_memory : Memory :=
   sorry
