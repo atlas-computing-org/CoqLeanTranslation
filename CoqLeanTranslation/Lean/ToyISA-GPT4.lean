@@ -178,3 +178,130 @@ def example_1_program_halts : Bool :=
   program_halts example_1_regs example_1_memory example_1_fuel_limit
 
 end ExampleProgram1
+
+namespace ExampleProgram2
+
+open ToyISA
+
+-- Example 2: Sum a List of Integers
+def example_2_regs : Registers := {
+  accumulator := 0,
+  instruction_register := 0,
+  program_counter := 0,
+  memory_address_register := 0,
+  memory_buffer_register := 0
+}
+
+def example_2_program_memory : Memory :=
+  let START_OF_LOOP := 10 in
+  let PTR_NEXT_INPUT_VALUE := 19 in
+  let LAST_PROGRAM_INSTRUCTION := 38 in
+  let program_data_start := LAST_PROGRAM_INSTRUCTION + 1 in
+
+  let const_1 :=                    program_data_start + 0 in
+  let num_remaining_input_values := program_data_start + 1 in
+  let next_input_value_addr :=      program_data_start + 2 in
+  let current_sum :=                program_data_start + 3 in
+  let program_input_start :=        program_data_start + 4 in
+
+  let dummy_value := 0 in
+  let init_num_remaining_input_values := dummy_value in
+  let init_next_input_value_addr := program_input_start in
+  let init_current_sum_value := 0 in
+
+  fun addr =>
+    match addr with
+    | 0 => 2    -- LOAD first input value
+    | 1 => program_input_start
+    | 2 => 3    -- STORE num remaining input values
+    | 3 => num_remaining_input_values
+
+    -- Set next input value address to program input start address + 1
+    | 4 => 2    -- LOAD next input value address
+    | 5 => next_input_value_addr
+    | 6 => 4    -- ADD 1
+    | 7 => const_1
+    | 8 => 3    -- STORE next input value address
+    | 9 => next_input_value_addr
+
+    -- LOOP: While num remaining input values is more than 0
+    -- START_OF_LOOP: 10
+    | 10 => 2   -- LOAD num remaining input values
+    | 11 => num_remaining_input_values
+    | 12 => 7   -- JZ last program instruction
+    | 13 => LAST_PROGRAM_INSTRUCTION
+
+    -- Load value at next input value address
+    | 14 => 2   -- LOAD next input value address
+    | 15 => next_input_value_addr
+    | 16 => 3   -- STORE pointer to next input value
+    | 17 => PTR_NEXT_INPUT_VALUE
+    | 18 => 2   -- LOAD next input value
+    -- PTR_NEXT_INPUT_VALUE: 19
+    | 19 => dummy_value
+
+    -- Add value at current sum value
+    | 20 => 4   -- ADD current sum
+    | 21 => current_sum
+
+    -- Store value to current sum value
+    | 22 => 3   -- STORE current sum
+    | 23 => current_sum
+
+    -- Decrement num remaining input values
+    | 24 => 2   -- LOAD num remaining input values
+    | 25 => num_remaining_input_values
+    | 26 => 5   -- SUB 1
+    | 27 => const_1
+    | 28 => 3   -- STORE num remaining input values
+    | 29 => num_remaining_input_values
+
+    -- Increment next input value address
+    | 30 => 2   -- LOAD next input value address
+    | 31 => next_input_value_addr
+    | 32 => 4   -- ADD 1
+    | 33 => const_1
+    | 34 => 3   -- STORE next input value address
+    | 35 => next_input_value_addr
+
+    -- Jump to start of loop
+    | 36 => 6   -- JMP start of loop
+    | 37 => START_OF_LOOP
+
+    -- END LOOP
+
+    -- Halt
+    -- LAST_PROGRAM_INSTRUCTION: 38
+    | 38 => 1   -- HALT
+
+    -- END PROGRAM INSTRUCTIONS
+
+    -- PROGRAM DATA
+    | 39 => 1                                 -- const_1
+    | 40 => init_num_remaining_input_values   -- num_remaining_input_values
+    | 41 => init_next_input_value_addr        -- next_input_value_addr
+    | 42 => init_current_sum_value            -- current_sum
+
+    -- 43: program_input_start
+
+    | _ => 0  -- Default value for other addresses
+    end
+
+def example_2_input_memory : Memory :=
+  sorry
+
+def example_2_memory : Memory :=
+  fun addr =>
+    sorry
+
+def example_2_fuel_limit : Nat := 100
+
+def example_2_program_halts : Bool :=
+  program_halts example_2_regs example_2_memory example_2_fuel_limit
+
+-- Calculate the return value of the example program
+def example_2_return_value : Nat :=
+  let (_, m, _) := execute_cycles example_2_regs example_2_memory example_2_fuel_limit
+  in m example_2_return_value_addr
+
+end ExampleProgram2
