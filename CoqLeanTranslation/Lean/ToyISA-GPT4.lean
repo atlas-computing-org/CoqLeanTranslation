@@ -209,7 +209,7 @@ def example_2_program_memory : Memory :=
   let init_next_input_value_addr := program_input_start
   let init_current_sum_value := 0
 
-  λ addr, match addr with
+  fun addr => match addr with
     | 0 => 2    -- LOAD first input value
     | 1 => program_input_start
     | 2 => 3    -- STORE num remaining input values
@@ -285,6 +285,9 @@ def example_2_program_memory : Memory :=
 
     | _ => 0  -- Default value for other addresses
 
+def example_2_return_value_addr : Nat := 42
+def example_2_program_memory_size : Nat := 43
+
 def example_2_input_memory : Memory :=
   sorry
 
@@ -300,6 +303,6 @@ def example_2_program_halts : Bool :=
 -- Calculate the return value of the example program
 def example_2_return_value : Nat :=
   let (_, m, _) := execute_cycles example_2_regs example_2_memory example_2_fuel_limit
-  in m example_2_return_value_addr
+  m example_2_return_value_addr
 
 end ExampleProgram2
