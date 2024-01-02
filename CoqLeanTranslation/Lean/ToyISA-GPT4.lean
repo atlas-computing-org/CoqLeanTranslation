@@ -126,6 +126,28 @@ def program_halts (initial_regs : Registers) (mem : Memory) (fuel : Nat) : Bool 
   | TerminationStatus.NormalTermination => true
   | TerminationStatus.FuelExhausted => false
 
+#eval program_halts ({accumulator := 0, instruction_register := 0, program_counter := 0, memory_address_register := 0, memory_buffer_register := 0}) (fun _ => 1) 10
+
+theorem program_halts_iff_status_is_halts :
+    ∀ (r: Registers) (m: Memory) (f: Nat),
+    program_halts r m f <->
+    (execute_cycles r m f).2.2 = TerminationStatus.NormalTermination := by
+  intro r m n
+  unfold program_halts; simp
+  cases execute_cycles r m n; simp
+  split
+  . simp; assumption
+  . simp [*]
+
+theorem program_halts_if_memory_is_all_ones :
+  ∀ (initial_regs : Registers) (f: Nat), f > 0 -> program_halts initial_regs (fun _ => 1) f := by
+  intro initial_regs f h
+  rw [program_halts_iff_status_is_halts]
+  unfold execute_cycles
+  split; try contradiction
+  unfold execute_single_cycle fetch_instruction decode_instruction
+  simp
+
 end ToyISA
 
 
