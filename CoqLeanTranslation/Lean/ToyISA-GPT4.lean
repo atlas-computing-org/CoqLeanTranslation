@@ -289,11 +289,21 @@ def example_2_return_value_addr : Nat := 42
 def example_2_program_memory_size : Nat := 43
 
 def example_2_input_memory : Memory :=
-  sorry
+  λ addr, match addr with
+    | 0 => 5
+    | 1 => 9
+    | 2 => 5
+    | 3 => 8
+    | 4 => 6
+    | 5 => 4
+    | _ => 1  -- Default value for other addresses
 
 def example_2_memory : Memory :=
-  fun addr =>
-    sorry
+  λ addr,
+    if addr < example_2_program_memory_size then
+      example_2_program_memory addr
+    else
+      example_2_input_memory (addr - example_2_program_memory_size)
 
 def example_2_fuel_limit : Nat := 100
 
