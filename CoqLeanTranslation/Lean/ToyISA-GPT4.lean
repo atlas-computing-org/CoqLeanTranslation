@@ -179,11 +179,13 @@ def example_1_program_halts : Bool :=
 
 end ExampleProgram1
 
+
+-- EXAMPLE PROGRAM 2: Sum a List of Integers
+
 namespace ExampleProgram2
 
 open ToyISA
 
--- Example 2: Sum a List of Integers
 def example_2_regs : Registers := {
   accumulator := 0,
   instruction_register := 0,
