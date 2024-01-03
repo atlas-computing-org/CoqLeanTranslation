@@ -289,7 +289,7 @@ def example_2_return_value_addr : Nat := 42
 def example_2_program_memory_size : Nat := 43
 
 def example_2_input_memory : Memory :=
-  λ addr, match addr with
+  fun addr => match addr with
     | 0 => 5
     | 1 => 9
     | 2 => 5
@@ -299,7 +299,7 @@ def example_2_input_memory : Memory :=
     | _ => 1  -- Default value for other addresses
 
 def example_2_memory : Memory :=
-  λ addr,
+  fun addr =>
     if addr < example_2_program_memory_size then
       example_2_program_memory addr
     else
